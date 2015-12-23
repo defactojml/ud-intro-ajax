@@ -1,72 +1,68 @@
-
 function loadData() {
 
-    var $body = $('body');
-    var $wikiElem = $('#wikipedia-links');
-    var $nytHeaderElem = $('#nytimes-header');
-    var $nytElem = $('#nytimes-articles');
-    var $greeting = $('#greeting');
+  var $body = $('body');
+  var $wikiElem = $('#wikipedia-links');
+  var $nytHeaderElem = $('#nytimes-header');
+  var $nytElem = $('#nytimes-articles');
+  var $greeting = $('#greeting');
 
-    // clear out old data before new request
-    $wikiElem.text("");
-    $nytElem.text("");
+  // clear out old data before new request
+  $wikiElem.text("");
+  $nytElem.text("");
 
-    var streetStr = $('#street').val();
-    var cityStr = $('#city').val();
-    var address = streetStr + ', ' + cityStr;
+  var street = $("#street").val();
+  var city = $("#city").val();
+  var address = street + ',' + city;
+  var url = "https://maps.googleapis.com/maps/api/streetview?size=400x600&location=" + address + "&fov=90&heading=235&pitch=10&key=AIzaSyB0oa8a6K6be8P0GGSRNtc0OMfUVj6pb4o";
+  $body.append('<img class="bgimg" src="' + url + '">');
 
-    $greeting.text('So, you want to live at ' + address + '?');
+  //street view key
+  //AIzaSyB0oa8a6K6be8P0GGSRNtc0OMfUVj6pb4o
 
-    // load streetview
-    var streetviewUrl = 'http://maps.googleapis.com/maps/api/streetview?size=600x400&location=' + address + '';
-    $body.append('<img class="bgimg" src="' + streetviewUrl + '">');
+  //nytimes key
+  //7de128da63822c8962a80372fab5883a:9:73438305
 
+  // load streetview
 
-    // load nytimes
-    var nytimesUrl = 'http://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + cityStr + '&sort=newest&api-key=3abc9a3d23e60b38c21b4ab9b0a91c07:17:69911633'
-    $.getJSON(nytimesUrl, function(data){
-
-        $nytHeaderElem.text('New York Times Articles About ' + cityStr);
-
-        articles = data.response.docs;
-        for (var i = 0; i < articles.length; i++) {
-            var article = articles[i];
-            $nytElem.append('<li class="article">'+
-                '<a href="'+article.web_url+'">'+article.headline.main+'</a>'+
-                '<p>' + article.snippet + '</p>'+
-            '</li>');
-        };
-
-    }).error(function(e){
-        $nytHeaderElem.text('New York Times Articles Could Not Be Loaded');
+  var urlNewYorkTimes = "http://api.nytimes.com/svc/search/v2/articlesearch.json?q=" + city + "&api-key=7de128da63822c8962a80372fab5883a:9:73438305";
+  // YOUR CODE GOES HERE!
+  $.getJSON(urlNewYorkTimes, function(data) {
+    $nytHeaderElem.text('New York Times articles about ' + city);
+    var articles = data.response.docs;
+    $.each(articles, function(index, article) {
+      $nytElem.append('<li class="article">' + '<a href="' + article.web_url + '">' + article.headline.main + '</a>' +
+      '<p>' + article.snippet + '</p>' + "</li>");
     });
+  }).error(function(e) {
+    $nytHeaderElem.text('New York Times articles could not be loaded');
+  });
+
+  //var urlWikipedia = 'https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content&rvsection=0&titles=' + city;
+  var urlWikipedia = 'https://en.wikjjjjjjjjjjjjjjjpedia.org/w/api.php?action=opensearch&search=' + city + '&format=json&callback=wikiCallback';
+
+  var wikiRequetTimeout = setTimeout(function(){
+    $wikiElem.text('on success : wikipedia articles could not be loaded');
+  }, 8000 );
+
+  $.ajax({
+    method: "GET",
+    url: urlWikipedia,
+    dataType: "jsonp",
+    success: function(response, status) {
+      console.log('status ' + status);
+      $.each(response[1], function(index, article) {
+        var url = 'https://en.wikipedia.org/wiki' + article;
+        $wikiElem.append('<li><a href ="' + article + '">' + article + '</a></li>');
+      });
+      clearTimeout(wikiRequetTimeout);
+    },
+    error: function(e) {
+      $wikiElem.text('on error: wikipedia articles could not be loaded');
+    }
+  });
 
 
-
-    // load wikipedia data
-    var wikiUrl = 'http://en.wikipedia.org/w/api.php?action=opensearch&search=' + cityStr + '&format=json&callback=wikiCallback';
-    var wikiRequestTimeout = setTimeout(function(){
-        $wikiElem.text("failed to get wikipedia resources");
-    }, 8000);
-
-    $.ajax({
-        url: wikiUrl,
-        dataType: "jsonp",
-        jsonp: "callback",
-        success: function( response ) {
-            var articleList = response[1];
-
-            for (var i = 0; i < articleList.length; i++) {
-                articleStr = articleList[i];
-                var url = 'http://en.wikipedia.org/wiki/' + articleStr;
-                $wikiElem.append('<li><a href="' + url + '">' + articleStr + '</a></li>');
-            };
-
-            clearTimeout(wikiRequestTimeout);
-        }
-    });
-
-    return false;
+  return false;
 };
 
 $('#form-container').submit(loadData);
