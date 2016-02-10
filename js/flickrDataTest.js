@@ -22,9 +22,10 @@
 // https://api.flickr.com/services/rest/?&method=flickr.people.getPublicPhotos&api_key=983c56b3652c1b44c58ddce47cef6449&user_id=138726948@N08&format=json&per_page=5
 
 
-var flickrCall = function() {
+var flickrCall = function () {
   //var url = 'https://api.flickr.com/services/rest/?&method=flickr.people.getPublicPhotos&api_key=' + apiKey + '&user_id=' + userId + '&format=json&jsoncallback=?';
 
+  var MAX_NUMBER = 10;
   var apiKey = 'b3bdddc89ecc48e025bfad40ac785142';
   var userId = '138726948@N08';
   var tagsInput = 'Roland Garros';
@@ -40,31 +41,25 @@ var flickrCall = function() {
   //var url = 'https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=b3bdddc89ecc48e025bfad40ac785142&tags=Roland+Garros&tag_mode=and&lat=48.86342&lon=2.26189&radius=2&radius_units=km&format=json&nojsoncallback=1';
 
   $.getJSON(url)
-    .success(function(data) {
-      console.log('yessss');
-      console.log(data);
-
+    .success(function (data) {
       //loop through the results with the following function
-      var filteredData = _.filter(data.photos.photo, function(photo) {
-        var match = false;
+      var filteredData = _.filter(data.photos.photo, function (photo) {
         // check if title is different from ""
         if (!_.isEmpty(photo.title)) {
-
           // tranform string into array
           var words = _.words(photo.title);
-
-          return _.isEqual((_.filter(tags, function(tag) {
-            var res = _.findIndex(words, function(word) {
+          return _.isEqual((_.filter(tags, function (tag) {
+            return (_.findIndex(words, function (word) {
               return word === tag
-            });
-            match = (res === -1) ? false : true;
-            return match;
+            }) === -1) ? false : true;
           })), tags);
         }
       });
-      console.log(filteredData);
+      console.log('number of pics found for', tagsInput, filteredData.length);
+      var photoSelected = _.slice(filteredData, filteredData.length - MAX_NUMBER)[_.random(0, MAX_NUMBER - 1)];
+      console.log('photo selected for', tagsInput, photoSelected);
     })
-    .fail(function(e) {
+    .fail(function (e) {
       console.log('nooooo...%o', e)
     });
   console.log('sent');
@@ -73,19 +68,19 @@ var flickrCall = function() {
 flickrCall();
 
 /*
-var elementsATrouver = ["Roland", "Garros"];
-var inputs = [["Serena", "Garros", "Roland", "2015"], ["Serena", "Wiliams"], ["Roland", "Garros", "2005"]];
+ var elementsATrouver = ["Roland", "Garros"];
+ var inputs = [["Serena", "Garros", "Roland", "2015"], ["Serena", "Wiliams"], ["Roland", "Garros", "2005"]];
 
-var goodCandidate  = _.isEqual((_.filter(elementsATrouver, function(elementATrouver) {
-  var found = false;
-  var res = _.findIndex(inputs, function(element) {
-    return element === elementATrouver
-  });
-  found = (res === -1) ? false : true;
-  return found;
-})), elementsATrouver);
+ var goodCandidate  = _.isEqual((_.filter(elementsATrouver, function(elementATrouver) {
+ var found = false;
+ var res = _.findIndex(inputs, function(element) {
+ return element === elementATrouver
+ });
+ found = (res === -1) ? false : true;
+ return found;
+ })), elementsATrouver);
 
-if (goodCandidate) {
-  console.log("element found!!")
-}
-*/
+ if (goodCandidate) {
+ console.log("element found!!")
+ }
+ */
