@@ -28,13 +28,26 @@ var flickrCall = function () {
   var MAX_NUMBER = 10;
   var apiKey = 'b3bdddc89ecc48e025bfad40ac785142';
   var userId = '138726948@N08';
+
+  /*
   var tagsInput = 'Roland Garros';
   var tagmode = 'and';
   var lat = 48.86342;
   var long = 2.26189;
+  */
+
+  var tagsInput = 'Le Jardin du Luxembourg';
+  var tagmode = 'and';
+  var lat = 48.84622;
+  var long = 2.33716;
+
+  var filteredKeywords = ['Le', 'du'];
+
   var radius = 2;
 
-  var tags = _.words(tagsInput);
+  var tags = _.filter(_.words(tagsInput), function(tag) {
+    return !_.includes(filteredKeywords, tag);
+  });
   var url = 'https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=' + apiKey + '&tags=' + tags + '&tag_mode=' + tagmode + '&lat=' + lat + '&lon=' + long + '&radius=' + radius + '&radius_units=km&format=json&nojsoncallback=1';
   console.log(url);
 
@@ -66,21 +79,3 @@ var flickrCall = function () {
 };
 
 flickrCall();
-
-/*
- var elementsATrouver = ["Roland", "Garros"];
- var inputs = [["Serena", "Garros", "Roland", "2015"], ["Serena", "Wiliams"], ["Roland", "Garros", "2005"]];
-
- var goodCandidate  = _.isEqual((_.filter(elementsATrouver, function(elementATrouver) {
- var found = false;
- var res = _.findIndex(inputs, function(element) {
- return element === elementATrouver
- });
- found = (res === -1) ? false : true;
- return found;
- })), elementsATrouver);
-
- if (goodCandidate) {
- console.log("element found!!")
- }
- */
