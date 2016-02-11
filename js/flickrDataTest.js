@@ -51,7 +51,7 @@ var flickrCall = function () {
           return _.isEqual((_.filter(tags, function (tag) {
             return (_.findIndex(words, function (word) {
               return word === tag
-            }) === -1) ? false : true;
+            }) !== -1) ;
           })), tags);
         }
       });
